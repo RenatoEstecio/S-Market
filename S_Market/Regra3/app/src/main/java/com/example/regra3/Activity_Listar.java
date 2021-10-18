@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -55,6 +56,14 @@ public class Activity_Listar extends AppCompatActivity {
 
         ListView lv = (ListView) findViewById(R.id.listaView);
         lv.setAdapter(adapter);
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItem = (String) parent.getItemAtPosition(position);
+                String i = selectedItem.split("[)]",2)[0]+")";
+                Alterar(view,i);
+            }
+        });
 
         adapter.notifyDataSetChanged();
     }
@@ -68,6 +77,14 @@ public class Activity_Listar extends AppCompatActivity {
             Log.d("myTag", e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public void Alterar(View view,String item)
+    {
+        finish();
+        Intent homepage = new Intent(this,MainActivity.class);
+        homepage.putExtra("Item", item);
+        startActivity(homepage);
     }
 
     public void Adicionar(View view)

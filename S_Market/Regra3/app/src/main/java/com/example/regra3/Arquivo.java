@@ -53,7 +53,7 @@ public class Arquivo {
             if(!(p.Unidade > 0 && p.Preço > 0 && p.Qtde > 0))
                 return "Por favor, Utilize Apenas Valores Positivos";
 
-            p.Nome += " ("+p.Unidade+p.TpUnidade+")";
+            p.Nome += " ("+FormatDoubleUnidade(p.Unidade,p.TpUnidade)+p.TpUnidade+")";
 
             for(int i=0;i< lista.size();i++)
                 if(lista.get(i).Nome.trim().equals(p.Nome.trim()))
@@ -74,25 +74,73 @@ public class Arquivo {
         }
     }
 
+    void AtualizarListaNoDisco()
+    {
+        try {
+
+            GetFile().delete();
+            Collections.sort(lista);
+
+            for(int i=0;i< lista.size();i++)
+            {
+                String resp = ToJson(lista.get(i));
+                FileOutputStream out = context.openFileOutput(ARQUIVO, Context.MODE_APPEND);
+                out.write((resp+"\n").getBytes());
+                out.flush();
+                out.close();
+            }
+
+        } catch (Exception e) {
+            Log.e("myTag", e.toString());
+
+        }
+    }
+
     public String Deletar(Produto p){
         try {
 
             for(int i=0;i< lista.size();i++)
-                if(lista.get(i).Nome == p.Nome) {
+                if(lista.get(i).Nome.equals(p.Nome)) {
                     lista.remove(i);
                     i = lista.size();
                 }
 
-            GetFile().delete();
-
-            for(int i=0;i< lista.size();i++)
-                Salvar(lista.get(i));
+            AtualizarListaNoDisco();
 
             return "Removido Com Sucesso";
         } catch (Exception e) {
             Log.e("myTag", e.toString());
             return "Erro ao Remover Produto";
         }
+    }
+
+    public String Alterar(Produto p_del,Produto nv){
+        try {
+            Deletar(p_del);
+            Salvar(nv);
+            return "Alterado Com Sucesso";
+        }
+        catch (Exception e) {
+            Log.e("myTag", e.toString());
+            return "Erro ao Remover Produto";
+        }
+    }
+
+    public Produto GetProduto(Produto p){
+
+        return GetProduto(p.Nome);
+    }
+
+    public Produto GetProduto(String nome){
+
+        try {
+            for(int i=0;i< lista.size();i++)
+                if(lista.get(i).Nome.equals(nome)) {
+                    return lista.get(i);
+                }
+        } catch (Exception e) { }
+
+        return  null;
     }
 
     public String Carregar() throws FileNotFoundException, IOException{
@@ -132,7 +180,11 @@ public class Arquivo {
         double total = 0;
         for(Produto item : lista){
             double v = item.Preço * item.Qtde;
-            strList.add(item.Nome + " "+item.Qtde+" Un. R$ "+ FormatDouble(v));
+
+            String Item = item.Nome + " "+item.Qtde+" Un. R$ "+ FormatDouble(item.Preço);
+            if(item.Qtde>1)
+                Item+= " / R$ "+FormatDouble(v);
+            strList.add(Item);
             total += v;
         }
         strList.add("Total: R$ "+ FormatDouble(total));
@@ -142,6 +194,17 @@ public class Arquivo {
     String FormatDouble(double f)
     {
         return String.format("%.2f", f);
+    }
+
+    String FormatDoubleUnidade(double f, String TpUnidade)
+    {
+        switch (TpUnidade)
+        {
+            case "Lt":
+            case "Kg": return String.format("%.1f", f);
+            default: return String.format("%.0f", f);
+        }
+
     }
 
     void DeletarArquivo()

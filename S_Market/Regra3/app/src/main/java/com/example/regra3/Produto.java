@@ -8,10 +8,10 @@ public class Produto implements Comparable<Produto>{
     public String Nome;
     public double Preço;
     public int Qtde;
-    public int Unidade;
+    public double Unidade;
     public String TpUnidade;
 
-    public  Produto(String Nome, int Unidade, int Qtde, Double Preço, String TpUnidade){
+    public  Produto(String Nome, double Unidade, int Qtde, Double Preço, String TpUnidade){
        this.Preço = Preço;
        this.Qtde = Qtde;
        this.Unidade = Unidade;
@@ -25,7 +25,7 @@ public class Produto implements Comparable<Produto>{
     {
         return Preço;
     }
-    int GetUnidade()
+    double GetUnidade()
     {
         return Unidade;
     }
